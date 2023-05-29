@@ -117,14 +117,16 @@ The thinking is wrong
 I need to do a bootstrap sampling, and I get 205 values,
 
 and I fit a function by the values, 
+
 and I get the coefficients,
 
 and I use this coefficients to get f(20),f(30).. I need 10 values,
 
 and I need to use those values get CIs
 
-
-Things needs to do:
-
+Questions:
 1. What is quadratic programming?
 2. Did the bootstrap out and make those CIs
+
+Progress:
+1. Find out the coefficient and did 10 values of f(20), f(30)...
