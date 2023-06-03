@@ -129,4 +129,4 @@ Questions:
 2. Did the bootstrap out and make those CIs
 
 Progress:
-1. Find out the coefficient and did 10 values of f(20), f(30)...
+Need to go outside with my friend tonight! Update after this!!
