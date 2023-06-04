@@ -129,4 +129,4 @@ Questions:
 2. Did the bootstrap out and make those CIs
 
 Progress:
-Need to go outside with my friend tonight! Update after this!!
+
