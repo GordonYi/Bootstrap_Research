@@ -40,9 +40,24 @@ mfits <- lapply(dfs, function(d) {
 })
 
 new_x_points = seq(range(age.income$age)[1],range(age.income$age)[2],length = 10)
+fit.log.income = rep(NA,length(new_x_points))
+for (h in seq_along(new_x_points)){
+  
+  newx = new_x_points[h]
+  new_x = predict(mfits[[1]]$x_mat, newx = newx)
+  new_fit = mfits[[1]]$coefficients[1] + sum(mfits[[1]]$coefficients[-1] * new_x)
+  fit.log.income[h] = new_fit
+  
+}
+
+truth = data.frame(age = new_x_points,
+                   fit.log.income = fit.log.income,
+                   lower = NA,
+                   upper = NA)
+
+#bootstrap sampling 1000 times -- get 1000 βs
 n <- nrow(age.income)
 n_bootstrap <- 1000
-ci_result = list()
 
 for(j in seq_along(new_x_points)){
   
@@ -62,46 +77,10 @@ for(j in seq_along(new_x_points)){
   }
   
   CI = quantile(boot_means,probs = c(0.025,0.975))
-  ci_result[[j]] = data.frame(x = newx,lower = CI[1],upper = CI[2])
+  truth$lower[j] = CI[1]
+  truth$upper[j] = CI[2]
   
 }
 
-ci_result = do.call('rbind',ci_result)
-rownames(ci_result) = NULL
-ci_result
-
-for (h in seq_along(new_x_points)){
-  
-  newx = new_x_points[h]
-  boot_meanss <- rep(NA, n_bootstrap)
-  
-  for (i in 1:n_bootstrap) {
-    boot_indices <- sample(n, replace = TRUE)  
-    boot_sample <- age.income[boot_indices, ]  
-    mfits <- lapply(dfs, function(d) {
-      with(boot_sample, mono_fit(age, log.income, df = d))
-    })
-    
-    new_x1 = predict(mfits[[1]]$x_mat, newx = newx)
-    new_fit1 = mfits[[1]]$coefficients[1] + sum(mfits[[1]]$coefficients[-1] * new_x1)
-    boot_meanss[i] = as.numeric(new_fit1)
-  }
-  
-}
-
-result_matrix <- matrix(boot_meanss, nrow = n_bootstrap, ncol = length(new_x_points), byrow = TRUE)
-answer <- matrix(NA, nrow = n_bootstrap, ncol = length(new_x_points))
-
-for (j in 1:length(new_x_points)) {
-  for (i in 1:n_bootstrap) {
-    value <- result_matrix[i, j]
-    in_interval <- value >= ci_result$lower[j] & value <= ci_result$upper[j]
-    answer[i, j] <- in_interval
-  }
-}
-print(answer)
-count_result <- table(answer)
-true_count <- count_result["TRUE"]
-false_count <- count_result["FALSE"]
-true_count
-false_count
+truth$cover = truth$fit.log.income>truth$lower & truth$fit.log.income<truth$upper
+truth
