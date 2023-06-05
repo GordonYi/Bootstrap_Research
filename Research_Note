@@ -161,6 +161,16 @@ Trying to estimate standard error in those 10 points
 
 Question:
 
-I estimate the CI by bootstrapping the data for 1000 times, and I can see that in every f(t) I choose, the CI of the bootstrap covers the real value, 
+1. I estimate the CI by bootstrapping the data for 1000 times, and I can see that in every f(t) I choose, the CI of the bootstrap covers the real value, 
 
 which might indicate that bootstrap is a good method to predict f(t), and these intervals are truely 95% intervals, but this is not about Standard Error..?
+
+2. 
+“do a simulation study, need to have a model, if the fitted model is the true model, generated r = 1000 dataset from the distribution”
+
+I think I might do this wrong, let me think about that
+
+Some interesting findings:
+
+CIs are longer on the bottom side and shorter for the upper side
+
