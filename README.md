@@ -223,7 +223,7 @@ Do it 1000 times, find out how many of those points are inside the CI
 
 ##### 1. About regression fitting: I think the code I found from the resource is somehow not appropriate, but I don't know how to fix that:
 
-I use the code from the paper you gave me to do the splines regression fitting:
+I use the code from the paper you gave me to do the splines regression fitting:(This part of the code is copied from the paper)
 
 ```{r,include = FASLE}
 library(splines2)
