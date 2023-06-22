@@ -157,3 +157,36 @@ cover_false_count <- apply(cover_results, 2, function(x) sum(x == FALSE))
 cover_true_count
 
 cover_false_count
+
+
+
+########################################################################
+########################################################################
+########################################################################
+
+new_x_points = seq(range(age.income$age)[1],range(age.income$age)[2],length = 10)
+fit.log.income = rep(NA,length(new_x_points))
+for (h in seq_along(new_x_points)){
+  
+  newx = new_x_points[h]
+  new_x = predict(mfits[[1]]$x_mat, newx = newx)
+  new_fit = mfits[[1]]$coefficients[1] + sum(mfits[[1]]$coefficients[-1] * new_x)
+  fit.log.income[h] = new_fit
+  
+}
+
+mfits[[1]]$fitted[1] # fitted
+fit.log.income[1] # manually
+
+ggplot() +
+  geom_point(data = age.income,
+             mapping = aes(x = age,y = log.income)) +
+  geom_point(data = data.frame(age = age.income$age,
+                               log.income = mfits[[1]]$fitted),
+             mapping = aes(x = age,y = log.income),
+             color = 'red') +
+  theme_bw()
+
+########################################################################
+########################################################################
+########################################################################
