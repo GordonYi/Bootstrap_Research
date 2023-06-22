@@ -2,6 +2,8 @@
 
 This is the repository for my first research project!! About growth curve model and bootstrap!
 
+Please scroll down to the bottom of this page to see the latest note for the meeting next time!
+
 ## Research Note:
 
 ### Main method to research
