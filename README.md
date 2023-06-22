@@ -226,7 +226,7 @@ Do it 1000 times, find out how many of those points are inside the CI
 I use the code from the paper you gave me to do the splines regression fitting:
 
 ```{r,include = FASLE}
- library(splines2)
+library(splines2)
 library(quadprog)
 library(boot)
 library(SemiPar)
