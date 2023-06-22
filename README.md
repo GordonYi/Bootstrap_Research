@@ -279,6 +279,9 @@ ggplot() +
              color = 'red') +
   theme_bw()
 ```
+We can see that the fitting is not correct.
+
+If we change the dfs from 6 to 4, it would be better, but still not very good. If the df goes higher, the line will be much more higher.
 
 In my code: 
 
