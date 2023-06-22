@@ -224,9 +224,7 @@ line 47:
 
 ```{r,include = FASLE}
 new_x = predict(mfits[[1]]$x_mat, newx = newx)
-
-​```
-
+```
 This line wants to convert x to x_mat, for fit the splines regression
 
 line 48:
