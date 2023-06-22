@@ -223,6 +223,63 @@ Do it 1000 times, find out how many of those points are inside the CI
 
 ##### 1. About regression fitting: I think the code I found from the resource is somehow not appropriate, but I don't know how to fix that:
 
+I use the code from the paper you gave me to do the splines regression fitting:(This part of the code is copied from the paper)
+
+```{r,include = FASLE}
+library(splines2)
+library(quadprog)
+library(boot)
+library(SemiPar)
+library(plotrix)
+
+standardize <- function(x, y) {
+  sx <- scale(x); sy <- scale(y)
+  x_bar <- attr(sx, "scaled:center"); x_sd <- attr(sx, "scaled:scale")
+  y_bar <- attr(sy, "scaled:center"); y_sd <- attr(sy, "scaled:scale")
+  list(sx = sx, x_bar = x_bar, x_sd = x_sd,
+       sy = sy, y_bar = y_bar, y_sd = y_sd)
+}
+
+qp_solve <- function(standardized, A_mat, x_mat, ...) {
+  d_vec <- with(standardized, crossprod(sx, sy)) 
+  D_mat <- crossprod(standardized$sx) 
+  sbeta <- quadprog::solve.QP(D_mat, d_vec, A_mat, ...)$solution
+  beta0 <- with(standardized,
+                as.numeric(crossprod(x_bar * y_sd / x_sd, sbeta)) + y_bar)
+  beta1 <- with(standardized, y_sd / x_sd * sbeta)
+  list(x_mat = x_mat,
+       coefficients = c("(Intercept)" = beta0, beta1),
+       fitted = as.numeric(x_mat %*% beta1) + beta0)
+}
+
+mono_fit <- function(x, y, monotone = c("increasing", "decreasing"), ...) {
+  monotone <- match.arg(monotone)
+  x_mat <- iSpline(x, ..., intercept = TRUE)
+  standardized <- standardize(x_mat, y) 
+  A_mat <- diag(ncol(standardized$sx)) 
+  if (monotone == "decreasing") A_mat <- -A_mat  
+  qp_solve(standardized, A_mat, x_mat)
+}
+
+data(age.income, package = "SemiPar")
+dfs <- c(6)
+mfits <- lapply(dfs, function(d) {
+  with(age.income, mono_fit(age, log.income, df = d))
+})
+```
+If we draw a line of this regression we can see that the regression is above the top of the dataset:
+
+```{r,include = FASLE}
+ggplot() +
+  geom_point(data = age.income,
+             mapping = aes(x = age,y = log.income)) +
+  geom_point(data = data.frame(age = age.income$age,
+                               log.income = mfits[[1]]$fitted),
+             mapping = aes(x = age,y = log.income),
+             color = 'red') +
+  theme_bw()
+```
+
 In my code: 
 
 line 47:
