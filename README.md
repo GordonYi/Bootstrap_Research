@@ -221,10 +221,11 @@ Do it 1000 times, find out how many of those points are inside the CI
 In my code: 
 
 line 47:
+
 ​```
 new_x = predict(mfits[[1]]$x_mat, newx = newx)
 
-```
+​```
 
 This line wants to convert x to x_mat, for fit the splines regression
 
