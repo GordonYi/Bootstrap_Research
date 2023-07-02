@@ -5,26 +5,6 @@ library(SemiPar)
 library(plotrix)
 library(tidyverse)
 
-x <- seq.int(0, 2, 0.01) # set x
-int_knots <- c(0.3, 0.7, 1.2, 1.5) # internal knots
-ms_mat <- mSpline(x, knots = int_knots, intercept = TRUE) # M-splines
-is_mat <- iSpline(x, knots = int_knots, intercept = TRUE) # I-splines
-cs_mat <- cSpline(x, knots = int_knots, intercept = TRUE) # C-splines
-## periodic splines, their derivatives, and integrals
-pm_mat <- mSpline(x, knots = int_knots, intercept = TRUE, periodic = TRUE)
-dpm_mat <- mSpline(x, knots = int_knots, intercept = TRUE, periodic = TRUE,
-                   derivs = 1) # or equivalently `deriv(pm_mat)`
-ipm_mat <- mSpline(x, knots = int_knots, intercept = TRUE, periodic = TRUE,
-                   integral = TRUE)
-bs_mat <- bSpline(x, knots = int_knots, intercept = TRUE) # B-splines
-dbs_mat <- deriv(bs_mat) # B-spline Derivatives
-ibs_mat <- ibs(x, knots = int_knots, intercept = TRUE) # B-spline Integrals
-## natural cubic splines, their derivatives, and integrals
-ns_mat <- naturalSpline(x, knots = int_knots, intercept = TRUE)
-dns_mat <- deriv(ns_mat)
-ins_mat <- naturalSpline(x, knots = int_knots, intercept = TRUE,
-                         integral = TRUE)
-## Standardize x and y
 standardize <- function(x, y) {
   sx <- scale(x); sy <- scale(y)
   x_bar <- attr(sx, "scaled:center"); x_sd <- attr(sx, "scaled:scale")
@@ -32,12 +12,12 @@ standardize <- function(x, y) {
   list(sx = sx, x_bar = x_bar, x_sd = x_sd,
        sy = sy, y_bar = y_bar, y_sd = y_sd)
 }
-## Solve by quadratic programming and scale coefficients back
+
 qp_solve <- function(standardized, A_mat, x_mat, ...) {
-  d_vec <- with(standardized, crossprod(sx, sy)) # (yˆT X)ˆT
-  D_mat <- crossprod(standardized$sx) # XˆT X
+  d_vec <- with(standardized, crossprod(sx, sy)) 
+  D_mat <- crossprod(standardized$sx) 
   sbeta <- quadprog::solve.QP(D_mat, d_vec, A_mat, ...)$solution
-  ## scale the coefficients back
+
   beta0 <- with(standardized,
                 -as.numeric(crossprod(x_bar * y_sd / x_sd, sbeta)) + y_bar)
   beta1 <- with(standardized, y_sd / x_sd * sbeta)
@@ -45,13 +25,13 @@ qp_solve <- function(standardized, A_mat, x_mat, ...) {
        coefficients = c("(Intercept)" = beta0, beta1),
        fitted = as.numeric(x_mat %*% beta1) + beta0)
 }
-## Monotone regression by I-splines
+
 mono_fit <- function(x, y, monotone = c("increasing", "decreasing"), ...) {
   monotone <- match.arg(monotone)
-  x_mat <- iSpline(x, ..., intercept = TRUE) # create I-splines
-  standardized <- standardize(x_mat, y) # standardization
-  A_mat <- diag(ncol(standardized$sx)) # set matrix A
-  if (monotone == "decreasing") A_mat <- -A_mat # flip the sign of matrix A
+  x_mat <- iSpline(x, ..., intercept = TRUE) 
+  standardized <- standardize(x_mat, y)
+  A_mat <- diag(ncol(standardized$sx)) 
+  if (monotone == "decreasing") A_mat <- -A_mat 
   qp_solve(standardized, A_mat, x_mat)
 }
 data(age.income, package = "SemiPar")
@@ -63,7 +43,7 @@ curv_fit <- function(x, y, monotone = c("none", "increasing", "decreasing"),
                      curvature = c("convex", "concave"), ...) {
   monotone <- match.arg(monotone); curvature <- match.arg(curvature)
   min_x <- min(x); range_x <- max(x) - min_x
-  x_mat <- cSpline(x, ..., intercept = TRUE) # create C-splines
+  x_mat <- cSpline(x, ..., intercept = TRUE) 
   if (monotone != "none") {
     right_side <- (monotone == "decreasing" && curvature == "convex") ||
       (monotone == "increasing" && curvature == "concave")
@@ -86,17 +66,6 @@ cfits <- lapply(dfs, function(d) {
   with(age.income, curv_fit(age, log.income, "none", "concave", df = d))
 })
 
-
-
-
-
-
-
-
-
-
-
-
 ggplot() +
   geom_point(data = age.income,
              mapping = aes(x = age,y = log.income)) +
@@ -105,8 +74,6 @@ ggplot() +
              mapping = aes(x = age,y = log.income),
              color = 'red') +
   theme_bw()
-
-
 
 dfs <- c(6)
 mfits <- lapply(dfs, function(d) {
@@ -129,7 +96,6 @@ truth = data.frame(age = new_x_points,
                    lower = NA,
                    upper = NA)
 
-#bootstrap sampling 1000 times -- get 1000 βs
 n <- nrow(age.income)
 n_bootstrap <- 1000
 
