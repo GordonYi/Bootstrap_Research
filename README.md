@@ -22,6 +22,16 @@ This is the RMarkdown version of the meeting note, if you want to see it in .txt
 
 I think I did those things right and I think the next step is to do the simulation study, and I am thinking about that
 
+#### What are we doing:
+
+Fit the Splines regression for the data in Semipar
+
+Do the bootstrap sampling for n = 1000 times, find out the 95% CI for 10 time points inside the regression
+
+Things need to solve: do a simulation study, find out wheather those simulated points are dropped inside the confidence intervals
+
+Do it 1000 times, find out how many of those points are inside the CI
+
 ### Report for meeting 4
 
 6/22
