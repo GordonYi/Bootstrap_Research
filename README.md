@@ -4,7 +4,23 @@ This is the repository for my first research project!! About growth curve model 
 
 This is the meeting minute notes for the research, and it is writting in flashback, so the latest note is on the top.
 
+This is the RMarkdown version of the meeting note, if you want to see it in .txt file, please see MeetingNote.txt in the repo
+
 ## Research Note:
+
+### Report for meeting 5
+
+7/3
+
+#### Progress:
+
+1. Rewrite the code to correct the error
+
+2. Clean the Repo!
+
+#### Question：
+
+I think I did those things right and I think the next step is to do the simulation study, and I am thinking about that
 
 ### Report for meeting 4
 
