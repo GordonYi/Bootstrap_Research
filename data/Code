@@ -4,6 +4,7 @@ library(boot)
 library(SemiPar)
 library(plotrix)
 library(tidyverse)
+library(ggthemes)
 
 standardize <- function(x, y) {
   sx <- scale(x); sy <- scale(y)
@@ -125,18 +126,28 @@ for(j in seq_along(new_x_points)){
 truth$cover = truth$fit.log.income>truth$lower & truth$fit.log.income<truth$upper
 truth
 
-library(tidyverse)
+# Plot for df = 6 I-Spline curve and Smoothing Spline curve
+
 ggplot() +
-  geom_point(data = age.income,
-             mapping = aes(x = age,y = log.income)) +
-  geom_point(data = data.frame(age = age.income$age,
-                               log.income = mfits[[1]]$fitted),
-             mapping = aes(x = age,y = log.income),
-             color = 'red') +
+  geom_point(data = age.income, aes(x = age, y = log.income), color = 'black', alpha = 0.6) +
+  geom_line(data = data.frame(age = age.income$age, log.income = mfits[[1]]$fitted), 
+            aes(x = age, y = log.income), color = 'red', size = 1.2) +
+  geom_smooth(data = age.income, aes(x = age, y = log.income), method = "loess",
+              color = 'orange', size = 1.5) +
+  geom_polygon(data = confidence_interval, aes(x = age, y = lower),
+               fill = 'lightblue', alpha = 0.3) +
   geom_point(data = truth,
              mapping = aes(x = age,y = fit.log.income),
-             color = 'blue') +
+             color = 'purple') +
   geom_errorbar(data = truth,
                 mapping = aes(x = age,ymin = lower,ymax = upper),
                 width = 1.5) +
-  theme_bw()
+  labs(x = "Age", y = "log (Income)") +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 20, hjust = 0.5),
+        axis.text = element_text(size = 14),
+        axis.title = element_text(size = 16),
+        legend.title = element_text(size = 14),
+        legend.text = element_text(size = 12))
+  annotate("text", x = max(age.income$age), y = max(age.income$log.income),
+         label = "df = 6", hjust = 1, vjust = 1, color = "black", size = 12)
