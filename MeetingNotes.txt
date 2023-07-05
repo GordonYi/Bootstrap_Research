@@ -10,6 +10,51 @@ Wish you have a nice day!
 
 ——————————————————————————————————————————————
 
+Report for meeting 6
+
+7/17
+
+Progress:
+
+1. Did the I-Spline regression for the age.income data
+
+2. Did the bootstrap sampling and the 95% CI for the dataset
+
+What are we doing:
+
+I dont know what the truth it
+
+In a simulation study, I will generate the data and my true values will be known:
+
+1. define a monotone function -- smooth, monotone function , use this function as a true μ(t) -- the expectation of y(t), use this to generate the dataset 1000 times, and then
+add some noise
+
+y = ax + bx^2 + c
+
+generate some t whatever it value is
+
+use normal distribution for the noise
+
+Repeat the process 1000 times, the percentage of the truth value
+
+y = μ(t) + noise
+
+I need to know t first, and then i know μ(t),
+
+and I generate y by setting the noise to normal(some variance of normal, variance is unchange),
+
+my goal is to estimate μ(t)
+
+put my bootstrap inside this setting to check is that real a 95% CI
+
+suppose I have 5 time points, at every time point we want to check what is the empirical coverage of those CI,
+
+at least 95% time inside 1000 times are inside the CI
+
+look at what CI really is
+
+——————————————————————————————————————————————
+
 Report for meeting 5
 
 7/3
