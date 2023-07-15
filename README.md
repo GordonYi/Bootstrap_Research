@@ -18,6 +18,10 @@ This is the RMarkdown version of the meeting note, if you want to see it in .txt
 
 2. Did the bootstrap sampling and the 95% CI for the dataset
 
+3. Trying to add up noise in an arbitrary function, create data points by 
+y(x) + noise, where the noise is subjected to standard normal distribution,
+and use bootstrap to get the CI on certain time points to see is it a good method or not
+
 #### What are we doing:
 
 I dont know what the truth it

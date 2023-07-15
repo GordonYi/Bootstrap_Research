@@ -191,3 +191,23 @@ points(rep(5, num_noise), y_values[which(x == 5)] + rnorm(num_noise, mean = 0, s
 points(rep(10, num_noise), y_values[which(x == 10)] + rnorm(num_noise, mean = 0, sd = 1), col = "blue", pch = 16)
 
 legend("topleft", legend = c("y(5)", "y(10)"), col = c("red", "blue"), pch = 16)
+
+# Simulated points by the function, the noise is subject to standard normal distribution(mean = 0, sd = 1)
+
+y <- function(x) {
+  return(0.02 * (x + 1.2))
+}
+
+x <- seq(0, 15, by = 0.1)
+
+y_values <- y(x)
+
+num_points <- length(x)  
+num_noise <- 1  
+noise <- rnorm(num_points, mean = 0, sd = 1)  
+
+y_values_with_noise <- y_values + noise
+
+plot(x, y_values_with_noise, type = "p", xlab = "x", ylab = "y(x) + noise", main = "Simulated points for the known function", col = "blue", pch = 16)
+
+
