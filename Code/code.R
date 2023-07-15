@@ -168,3 +168,26 @@ ggplot() +
         legend.text = element_text(size = 12))
   annotate("text", x = max(age.income$age), y = max(age.income$log.income),
          label = "df = 6", hjust = 1, vjust = 1, color = "black", size = 12)
+
+
+
+# Noise Add in the function
+y <- function(x) {
+  return(2 * (x^2+ 1.2))
+}
+
+x <- seq(0, 15, by = 0.1)
+
+y_values <- y(x)
+
+num_noise <- 50  
+
+y_values[which(x == 5)] <- y_values[which(x == 5)] + rnorm(num_noise, mean = 0, sd = 1)
+y_values[which(x == 10)] <- y_values[which(x == 10)] + rnorm(num_noise, mean = 0, sd = 1)
+
+plot(x, y_values, type = "l", xlab = "x", ylab = "y(x)", main = "Time points of the function and the noise")
+
+points(rep(5, num_noise), y_values[which(x == 5)] + rnorm(num_noise, mean = 0, sd = 1), col = "red", pch = 16)
+points(rep(10, num_noise), y_values[which(x == 10)] + rnorm(num_noise, mean = 0, sd = 1), col = "blue", pch = 16)
+
+legend("topleft", legend = c("y(5)", "y(10)"), col = c("red", "blue"), pch = 16)

@@ -8,6 +8,7 @@ This file is present in .txt format, if you want to read this in markdown format
 
 Wish you have a nice day!
 
+
 ——————————————————————————————————————————————
 
 Report for meeting 6
@@ -19,6 +20,8 @@ Progress:
 1. Did the I-Spline regression for the age.income data
 
 2. Did the bootstrap sampling and the 95% CI for the dataset
+
+3. Trying to add up noise in an arbitrary function, and use bootstrap to get the CI on certain time points to see is it a good method or not
 
 What are we doing:
 
