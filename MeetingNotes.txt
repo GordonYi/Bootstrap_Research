@@ -31,7 +31,8 @@ I dont know what the truth it
 
 In a simulation study, I will generate the data and my true values will be known:
 
-1. define a monotone function -- smooth, monotone function , use this function as a true μ(t) -- the expectation of y(t), use this to generate the dataset 1000 times, and then
+1. define a monotone function -- smooth, monotone function , use this function as a true μ(t) -- the expectation of y(t), use this to 
+generate the dataset 1000 times, and then
 add some noise
 
 y = ax + bx^2 + c
@@ -128,7 +129,8 @@ Use dataset age.income from package SemiPar,
 
 fit the ispline monotone regression for the data, get x_mat, coefficient, fitted value,
 
-Resampling by bootstrap method n_bootstrap = 1000 times, for each time, fit the ispline monotone regression for the bootstrap data, get x_mat, coefficient, fitted value,
+Resampling by bootstrap method n_bootstrap = 1000 times, for each time, fit the ispline monotone regression for the bootstrap data,
+get x_mat, coefficient, fitted value,
 
 Find out the 10th, 20th, 30th... 90th percentiles of the dataset, fit f(10th), f(20th)... for n_bootstrap = 1000 times
 
@@ -187,7 +189,8 @@ Question:
 I estimate the CI by bootstrapping the data for 1000 times, and I can see that in every f(t) I choose, the CI of the bootstrap covers the real value,
 which might indicate that bootstrap is a good method to predict f(t), and these intervals are truely 95% intervals, but this is not about Standard Error..?
 
-Or can I say that since every true point falls within its corresponding confidence interval (CI), you can tentatively conclude that the Bootstrap standard error (SE) is reliable?
+Or can I say that since every true point falls within its corresponding confidence interval (CI), you can tentatively conclude that the Bootstrap 
+standard error (SE) is reliable?
 
 do a simulation study, need to have a model, if the fitted model is the true model, generated r = 1000 dataset from the distribution
 
@@ -229,13 +232,15 @@ Report for meeting 1
 
 Progress:
 
-Some functions must be shape-restricted because of natural intuitions and prior knowledge. Some shape-restricted functions examples: Monotone Regressions, Convex Regressions...
+Some functions must be shape-restricted because of natural intuitions and prior knowledge. Some shape-restricted functions examples: 
+Monotone Regressions, Convex Regressions...
 
 e.g. growth curves in population health, dose-response models in phase I clinical trials, and utility functions in economics
 
 mainly about non-decreasing curve
 
-A non-decreasing curve can be fitted by a linear combination of I-splines with an additional intercept where the coefficients of the I-spline basis functions are constrained to be nonnegative
+A non-decreasing curve can be fitted by a linear combination of I-splines with an additional intercept where the coefficients of the 
+I-spline basis functions are constrained to be nonnegative
 
 We want to do least square to fit the I-splines regression, which contains several intervals, which means several betas, since we want the regression to be monotonically increasing,
 
@@ -247,12 +252,15 @@ So first we extract the fitted value from our regression, and do a bootstrap,
 
 than we use the formula of Standard Error to see the real standard error, and compare them.
 
-According to the dataset given by the paper, I did a I-splines regression(with df = 6), and apply bootstrap with it, find out the value of SE it given is very close to the SE value given by the formula.
+According to the dataset given by the paper, I did a I-splines regression(with df = 6), and apply bootstrap with it, find out the value of SE it given is 
+very close to the SE value given by the formula.
 
 Questions:
 
-Due to time limitation, I'm still not very farmiliar with the mathematical details behind those methods, which will be a hinder of the paper writting, will learn more by reading more
-I am not very sure about what is the SE I need to deal with -- I did a bootstrap for the fitted value given by the non-negative I-spline function, but not sure while is it the right thing to do
+Due to time limitation, I'm still not very farmiliar with the mathematical details behind those methods, which will be a hinder of the paper writting, 
+will learn more by reading more
+I am not very sure about what is the SE I need to deal with -- I did a bootstrap for the fitted value given by the non-negative I-spline function, 
+but not sure while is it the right thing to do
 And shape-restricted regression should be
 
 quardratic programming
