@@ -22,6 +22,27 @@ This is the RMarkdown version of the meeting note, if you want to see it in .txt
 y(x) + noise, where the noise is subjected to standard normal distribution,
 and use bootstrap to get the CI on certain time points to see is it a good method or not
 
+#### Procedure:
+
+Let me describe the process of this simulation study first, to see wheather what I am doing is right or not
+
+1.  First of all I define a function, let's say I define a function y = 0.25*(x-0.9) -- which is the first function from the reference paper
+
+2. Second I will decide to use ten certain time points(let's say all the integers from 0 to 10) as x and find out their y value
+
+3. I want to add up 1000 noises to those time points (Which means 100 noises for each one of those time points), 
+and generate 1000 data points and put it inside a dataset
+
+4. I do a bootstrap sampling for 1000 times to find out one 95% CI for each time points
+
+5. See wheather those CIs are true 95% CIs, we want to see that wheather 95% of those data points we generate by add up the noise to the real value
+are inside the CI.
+
+#### Question:
+
+1. I want to generate noises by normal distributions but what is the parameters of this distribution?(Standard normal? mean = 1, sd = 0.1?)
+
+On progressing, let's see what I can do until Monday!!!
 #### What are we doing:
 
 I dont know what the truth it
