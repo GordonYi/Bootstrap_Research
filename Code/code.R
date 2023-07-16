@@ -195,19 +195,73 @@ legend("topleft", legend = c("y(5)", "y(10)"), col = c("red", "blue"), pch = 16)
 # Simulated points by the function, the noise is subject to standard normal distribution(mean = 0, sd = 1)
 
 y <- function(x) {
-  return(0.02 * (x + 1.2))
+  return(0.25*(x-0.9))
 }
 
-x <- seq(0, 15, by = 0.1)
-
+x <- seq(0, 30, by = 0.05)  
+x
 y_values <- y(x)
+y_values
 
-num_points <- length(x)  
+num_points <- length(x) 
+num_points
 num_noise <- 1  
 noise <- rnorm(num_points, mean = 0, sd = 1)  
-
+noise
 y_values_with_noise <- y_values + noise
 
 plot(x, y_values_with_noise, type = "p", xlab = "x", ylab = "y(x) + noise", main = "Simulated points for the known function", col = "blue", pch = 16)
 
+count <- 0
 
+for (i in 1:length(y_values_with_noise)) {
+    count <- count + 1
+}
+
+cat(count, "\n")
+dataset <- data.frame(x = x, y = y_values_with_noise)
+head(dataset)
+
+dfs <- c(6, 10, 14)
+mfits <- lapply(dfs, function(d) {
+  with(dataset, mono_fit(x, y, df = d))
+})
+curv_fit <- function(x, y, monotone = c("none", "increasing", "decreasing"),
+                     curvature = c("convex", "concave"), ...) {
+  monotone <- match.arg(monotone); curvature <- match.arg(curvature)
+  min_x <- min(x); range_x <- max(x) - min_x
+  x_mat <- cSpline(x, ..., intercept = TRUE) 
+  if (monotone != "none") {
+    right_side <- (monotone == "decreasing" && curvature == "convex") ||
+      (monotone == "increasing" && curvature == "concave")
+    side_knot <- knots(x_mat, "boundary")[right_side + 1]
+    dx_mat <- cbind(1 / range_x, deriv(predict(x_mat, side_knot)))
+  }
+  x_mat <- cbind("(Linear)" = (x - min_x) / range_x, x_mat)
+  standardized <- standardize(x_mat, y)
+  A_mat <- rbind(0, diag(ncol(x_mat) - 1L))
+  if (curvature == "concave") A_mat <- - A_mat
+  if (monotone == "decreasing") dx_mat <- - dx_mat
+  if (monotone != "none") {
+    for (j in seq_len(ncol(dx_mat)))
+      dx_mat[, j] <- dx_mat[, j] / standardized$x_sd[j]
+    A_mat <- cbind(A_mat, as.numeric(dx_mat))
+  }
+  qp_solve(standardized, A_mat, x_mat)
+}
+
+ggplot() +
+  geom_point(data = dataset, aes(x = x, y = y), color = 'pink', alpha = 0.6) +
+  geom_line(data = data.frame(x = dataset$x, y = mfits[[1]]$fitted), 
+            aes(x = x, y = y), color = 'red', size = 1.2) +
+  labs(x = "x", y = "y") +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 20, hjust = 0.5),
+        axis.text = element_text(size = 14),
+        axis.title = element_text(size = 16),
+        legend.title = element_text(size = 14),
+        legend.text = element_text(size = 12)) +
+    geom_abline(slope = 0.25, intercept = -0.25*0.9, linetype = "dashed",
+              aes(color = "y(x) = 0.25 * (x - 0.9)")) +
+  annotate("text", x = max(dataset$x), y = max(dataset$y),
+           label = "df = 6", hjust = 1, vjust = 1, color = "black", size = 5)
