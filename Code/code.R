@@ -36,7 +36,7 @@ mono_fit <- function(x, y, monotone = c("increasing", "decreasing"), ...) {
   qp_solve(standardized, A_mat, x_mat)
 }
 data(age.income, package = "SemiPar")
-dfs <- c(6, 10, 14)
+dfs <- c(6)
 mfits <- lapply(dfs, function(d) {
   with(age.income, mono_fit(age, log.income, df = d))
 })
@@ -76,7 +76,7 @@ ggplot() +
              color = 'red') +
   theme_bw()
 
-dfs <- c(6,10,15)
+dfs <- c(6)
 mfits <- lapply(dfs, function(d) {
   with(age.income, mono_fit(age, log.income, df = d))
 })
@@ -584,6 +584,6 @@ truth4$coverage <- coverage
 truth4
 
 # We can see that in some situations the 1000 times bootstrap CI had poor performance in certain points -- however, if you increase the bootstrap sampling from 1000 to 2000
-the behavior will be much better
+# the behavior will be much better
 
 # It seems bootstrap CI have a poor performance in function 3 -- still finding out the reason for that
