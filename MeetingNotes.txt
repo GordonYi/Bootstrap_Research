@@ -96,7 +96,7 @@ For each three functions, if we increase the number of bootstrap sampling, we wi
 
 Question:
 
-1. I want to generate noises by normal distributions but what is the parameters of this distribution?(Standard normal? mean = 1, sd = 0.1?)
+1. I want to generate noises by normal distributions but what is the parameters of this distribution?(Standard normal? mean = 0, sd = 0.1?)
 
 2. Figuring out the problem on function 3
 
