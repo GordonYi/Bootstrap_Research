@@ -18,7 +18,7 @@ qp_solve <- function(standardized, A_mat, x_mat, ...) {
   d_vec <- with(standardized, crossprod(sx, sy)) 
   D_mat <- crossprod(standardized$sx) 
   sbeta <- quadprog::solve.QP(D_mat, d_vec, A_mat, ...)$solution
-
+  
   beta0 <- with(standardized,
                 -as.numeric(crossprod(x_bar * y_sd / x_sd, sbeta)) + y_bar)
   beta1 <- with(standardized, y_sd / x_sd * sbeta)
@@ -76,7 +76,7 @@ ggplot() +
              color = 'red') +
   theme_bw()
 
-dfs <- c(6)
+dfs <- c(6,10,15)
 mfits <- lapply(dfs, function(d) {
   with(age.income, mono_fit(age, log.income, df = d))
 })
@@ -166,7 +166,7 @@ ggplot() +
         axis.title = element_text(size = 16),
         legend.title = element_text(size = 14),
         legend.text = element_text(size = 12))
-  annotate("text", x = max(age.income$age), y = max(age.income$log.income),
+annotate("text", x = max(age.income$age), y = max(age.income$log.income),
          label = "df = 6", hjust = 1, vjust = 1, color = "black", size = 12)
 
 
@@ -196,7 +196,7 @@ plot(x, y_values_with_noise, type = "p", xlab = "x", ylab = "y(x) + noise", main
 count <- 0
 
 for (i in 1:length(y_values_with_noise)) {
-    count <- count + 1
+  count <- count + 1
 }
 
 cat(count, "\n")
@@ -222,7 +222,7 @@ ggplot() +
         axis.title = element_text(size = 16),
         legend.title = element_text(size = 14),
         legend.text = element_text(size = 12)) +
-    geom_abline(slope = 0.25, intercept = -0.25*0.9, linetype = "dashed",
+  geom_abline(slope = 0.25, intercept = -0.25*0.9, linetype = "dashed",
               aes(color = "y(x) = 0.25 * (x - 0.9)")) +
   annotate("text", x = max(dataset$x), y = max(dataset$y),
            label = "df = 6", hjust = 1, vjust = 1, color = "black", size = 5)
@@ -393,7 +393,6 @@ truth3 <- data.frame(x = new_x_points, y = NA, lower = NA, upper = NA)
 for (j in seq_along(new_x_points)) {
   newx <- new_x_points[j]
   boot_means <- rep(NA, n_bootstrap)
-  
   for (i in 1:n_bootstrap) {
     boot_indices <- sample(n, replace = TRUE)  
     boot_sample <- dataset[boot_indices, ]  
@@ -462,10 +461,129 @@ for (i in 1:num_groups) {
 }
 
 truth3$coverage <- coverage
-
-truth2
-# truth 2 is the CI coverage for y = 0.25(x-0.9)
 truth3
-# truth 3 is the CI coverage for y = 0.02(x+1.2)
 
-# We can see that those coverage are higher or near 95%
+
+
+
+
+
+# y = 0.1 * (5 * pnorm((x - 2) / 0.3)) + 1)
+y <- function(x) {
+  return( 0.1 * (5 * pnorm((x - 2) / 0.3)) + 1)
+}
+
+x <- seq(0, 20, by = 0.05)
+y_values <- y(x)
+
+num_points <- length(x)
+num_noise <- 100
+noise <- rnorm(num_points, mean = 0, sd = 0.1)
+y_values_with_noise <- y_values + noise
+
+plot(x, y_values_with_noise, type = "p", xlab = "x", ylab = "y(x) + noise", main = "Simulated points for the known function", col = "blue", pch = 16)
+
+count <- length(y_values_with_noise)
+cat(count, "\n")
+
+dataset3 <- data.frame(x = x, y = y_values_with_noise)
+
+dfs <- c(6, 10, 15)  
+mfitssss <- lapply(dfs, function(d) {
+  with(dataset3, mono_fit(x, y, df = d))
+})
+
+ggplot() +
+  geom_point(data = dataset3, aes(x = x, y = y_values_with_noise), color = 'blue', alpha = 0.6) +
+  geom_line(data = data.frame(x = dataset3$x, y = mfitssss[[1]]$fitted), 
+            aes(x = x, y = y), color = 'red', size = 1.2) +
+  labs(x = "x", y = "y") +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 20, hjust = 0.5),
+        axis.text = element_text(size = 14),
+        axis.title = element_text(size = 16),
+        legend.title = element_text(size = 14),
+        legend.text = element_text(size = 12)) +
+  annotate("text", x = max(dataset3$x), y = max(dataset3$y),
+           label = paste("df =", dfs[1]), hjust = 1, vjust = 1, color = "black", size = 5)
+
+new_x_points <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+n_bootstrap <- 1000
+truth4 <- data.frame(x = new_x_points, y = NA, lower = NA, upper = NA)
+
+for (j in seq_along(new_x_points)) {
+  newx <- new_x_points[j]
+  boot_means <- rep(NA, n_bootstrap)
+  
+  for (i in 1:n_bootstrap) {
+    boot_indices <- sample(num_points, replace = TRUE)  
+    boot_sample <- dataset3[boot_indices, ]  
+    mfitssss <- lapply(dfs, function(d) {
+      with(boot_sample, mono_fit(x, y, df = d))
+    })
+    
+    new_x <- predict(mfitssss[[1]]$x_mat, newx = newx)
+    new_fit <- mfitssss[[1]]$coefficients[1] + sum(mfitssss[[1]]$coefficients[-1] * new_x)
+    boot_means[i] <- as.numeric(new_fit)
+  }
+  
+  CI <- quantile(boot_means, probs = c(0.025, 0.975))
+  truth4$lower[j] <- CI[1]
+  truth4$upper[j] <- CI[2]
+  truth4$y[j] <- new_fit
+}
+
+truth4
+
+x_points <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+
+y_points <- 0.1 * (5 * pnorm((x_points - 2) / 0.3)) + 1
+
+set.seed(1)  
+num_noise <- 100
+noise <- rnorm(length(x_points) * num_noise, mean = 0, sd = 0.1)
+y_values_with_noise <- rep(y_points, each = num_noise) + noise
+
+data <- data.frame(x = rep(x_points, each = num_noise),
+                   y_with_noise = y_values_with_noise)
+
+ci_data <- data.frame(x = truth4$x,
+                      y = truth4$y,
+                      lower = truth4$lower,
+                      upper = truth4$upper)
+
+ggplot() +
+  geom_point(data = data, aes(x = x, y = y_with_noise), color = 'blue', alpha = 0.6) +
+  geom_line(data = data.frame(x = x_points, y = y_points), 
+            aes(x = x, y = y), color = 'red', size = 1.2) +
+  geom_line(data = ci_data, aes(x = x, y = y), color = 'green', size = 1.2) +
+  geom_errorbar(data = ci_data, aes(x = x, ymin = lower, ymax = upper),
+                color = 'green', width = 0.2) +
+  labs(x = "x", y = "y", title = "y = 0.1(5Φ(x − 2)/0.3) + 1) with Confidence Intervals") +
+  scale_color_manual(values = c("red", "green"),
+                     labels = c("True Function", "Confidence Intervals")) +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 20, hjust = 0.5),
+        axis.text = element_text(size = 14),
+        axis.title = element_text(size = 16),
+        legend.title = element_text(size = 14),
+        legend.text = element_text(size = 12))
+
+group_size <- 100
+num_groups <- length(x_points)
+coverage <- rep(0, num_groups)
+
+for (i in 1:num_groups) {
+  start_index <- (i - 1) * group_size + 1
+  end_index <- i * group_size
+  y_values_group <- y_values_with_noise[start_index:end_index]
+  coverage[i] <- mean(y_values_group >= ci_data$lower[i] & y_values_group <= ci_data$upper[i]) * 100
+}
+
+truth4$coverage <- coverage
+truth4
+
+# We can see that in some situations the 1000 times bootstrap CI had poor performance in certain points -- however, if you increase the bootstrap sampling from 1000 to 2000
+the behavior will be much better
+
+# It seems bootstrap CI have a poor performance in function 3 -- still finding out the reason for that
