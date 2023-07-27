@@ -35,11 +35,13 @@ mono_fit <- function(x, y, monotone = c("increasing", "decreasing"), ...) {
   if (monotone == "decreasing") A_mat <- -A_mat 
   qp_solve(standardized, A_mat, x_mat)
 }
+
 data(age.income, package = "SemiPar")
 dfs <- c(6)
 mfits <- lapply(dfs, function(d) {
   with(age.income, mono_fit(age, log.income, df = d))
 })
+
 curv_fit <- function(x, y, monotone = c("none", "increasing", "decreasing"),
                      curvature = c("convex", "concave"), ...) {
   monotone <- match.arg(monotone); curvature <- match.arg(curvature)
@@ -63,6 +65,7 @@ curv_fit <- function(x, y, monotone = c("none", "increasing", "decreasing"),
   }
   qp_solve(standardized, A_mat, x_mat)
 }
+
 cfits <- lapply(dfs, function(d) {
   with(age.income, curv_fit(age, log.income, "none", "concave", df = d))
 })
@@ -175,35 +178,20 @@ annotate("text", x = max(age.income$age), y = max(age.income$log.income),
 
 # y = 0.25*(x-0.9)
 
+
 y <- function(x) {
   return(0.25*(x-0.9))
 }
-
-x <- seq(0, 30, by = 0.1)  
-x
+x <- seq(0, 30, length.out = 1000)
 y_values <- y(x)
-y_values
 
-num_points <- length(x) 
-num_points
-num_noise <- 1  
-noise <- rnorm(num_points, mean = 0, sd = 1)  
-noise
+noise <- rnorm(length(x), mean = 0, sd = 1)  
 y_values_with_noise <- y_values + noise
 
 plot(x, y_values_with_noise, type = "p", xlab = "x", ylab = "y(x) + noise", main = "Simulated points for the known function", col = "blue", pch = 16)
 
-count <- 0
-
-for (i in 1:length(y_values_with_noise)) {
-  count <- count + 1
-}
-
-cat(count, "\n")
 dataset <- data.frame(x = x, y = y_values_with_noise)
 head(dataset)
-
-
 
 dfs <- c(6, 10, 15)
 mfitsss <- lapply(dfs, function(d) {
@@ -229,361 +217,79 @@ ggplot() +
 
 
 
-new_x_points <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+new_x_points <- seq(1,30,length = 10)
 n_bootstrap <- 1000
-truth2 <- data.frame(x = new_x_points, y = NA, lower = NA, upper = NA)
+iter = 1000
+n = nrow(dataset)
+result = list()
 
 for (j in seq_along(new_x_points)) {
   newx <- new_x_points[j]
+  true_y = y(newx)
   boot_means <- rep(NA, n_bootstrap)
   
-  for (i in 1:n_bootstrap) {
-    boot_indices <- sample(n, replace = TRUE)  
-    boot_sample <- dataset[boot_indices, ]  
-    mfitsss <- lapply(dfs, function(d) {
-      with(boot_sample, mono_fit(x, y, df = 6))
-    })
+  ci = list()
+  
+  for(k in 1:iter){
     
-    new_x <- predict(mfitsss[[1]]$x_mat, newx = newx)
-    new_fit <- mfitsss[[1]]$coefficients[1] + sum(mfitsss[[1]]$coefficients[-1] * new_x)
-    boot_means[i] <- as.numeric(new_fit)
+    fit_value_list = list()
+    
+    for (i in 1:n_bootstrap) {
+      boot_indices <- sample(n, replace = TRUE)
+      boot_sample <- dataset[boot_indices, ]
+      
+      mfitsss <- lapply(dfs, function(d) {
+        with(boot_sample, mono_fit(x, y, df = d))
+      })
+      
+      fit_list = list()
+      
+      for(m in 1:length(mfitsss)){
+        
+        new_x <- predict(mfitsss[[m]]$x_mat, newx = newx)
+        new_fit <- mfitsss[[m]]$coefficients[1] + sum(mfitsss[[m]]$coefficients[-1] * new_x)
+        
+        fit_list[[m]] = new_fit
+        
+      }
+      
+      y_fit = do.call('c',fit_list)
+      fit_value_list[[i]] = y_fit
+      
+    }
+    
+    fit_value_list = do.call('rbind',fit_value_list)
+    colnames(fit_value_list) = str_c('df_',dfs)
+    ci[[k]] = apply(X = fit_value_list,MARGIN = 2,FUN = quantile,probs = c(0.025, 0.975))
+    
   }
   
-  CI <- quantile(boot_means, probs = c(0.025, 0.975))
-  truth2$lower[j] <- CI[1]
-  truth2$upper[j] <- CI[2]
-  truth2$y[j] <- new_fit
-}
-
-truth2
-
-
-
-set.seed(1)  
-
-x_points <- 1:10  
-num_points <- length(x_points) 
-num_noise <- 100  
-noise_mean <- 0  
-noise_sd <- 0.1  
-
-y_values_with_noise <- numeric(num_points * num_noise)
-
-for (i in 1:num_points) {
-  x <- x_points[i]
-  y <- 0.25 * (x - 0.9)
-  noise <- rnorm(num_noise, mean = noise_mean, sd = noise_sd)
-  y_with_noise <- y + noise
-  start_index <- (i - 1) * num_noise + 1
-  end_index <- i * num_noise
-  y_values_with_noise[start_index:end_index] <- y_with_noise
-}
-
-y_values_with_noise
-
-
-
-x_points <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
-
-ci_data <- data.frame(x = truth2$x,
-                      y = truth2$y,
-                      lower = truth2$lower,
-                      upper = truth2$upper)
-
-ggplot() +
-  geom_point(data = ci_data, aes(x = x, y = y), color = 'black', alpha = 0.6) +
-  geom_line(data = data.frame(x = ci_data$x, y = ci_data$y), 
-            aes(x = x, y = y), color = 'red', size = 1.2) +
-  geom_errorbar(data = ci_data, aes(x = x, ymin = lower, ymax = upper),
-                color = 'blue', width = 0.2) +
-  labs(x = "x", y = "y") +
-  theme_minimal() +
-  theme(plot.title = element_text(size = 20, hjust = 0.5),
-        axis.text = element_text(size = 14),
-        axis.title = element_text(size = 16),
-        legend.title = element_text(size = 14),
-        legend.text = element_text(size = 12))
-
-
-
-
-x_points <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
-
-y_points <- 0.25 * (x_points - 0.9)
-
-set.seed(1)  
-num_noise <- 100
-noise <- rnorm(length(x_points) * num_noise, mean = 0, sd = 0.1)
-y_values_with_noise <- rep(y_points, each = num_noise) + noise
-
-data <- data.frame(x = rep(x_points, each = num_noise),
-                   y_with_noise = y_values_with_noise)
-
-ci_data <- data.frame(x = truth2$x,
-                      y = truth2$y,
-                      lower = truth2$lower,
-                      upper = truth2$upper)
-
-ggplot() +
-  geom_point(data = data, aes(x = x, y = y_with_noise), color = 'blue', alpha = 0.6) +
-  geom_line(data = data.frame(x = x_points, y = y_points), 
-            aes(x = x, y = y), color = 'red', size = 1.2) +
-  geom_line(data = ci_data, aes(x = x, y = y), color = 'green', size = 1.2) +
-  geom_errorbar(data = ci_data, aes(x = x, ymin = lower, ymax = upper),
-                color = 'green', width = 0.2) +
-  labs(x = "x", y = "y", title = "y = 0.25(x)-0.9 with Confidence Intervals") +
-  scale_color_manual(values = c("red", "green"),
-                     labels = c("True Function", "Confidence Intervals")) +
-  theme_minimal() +
-  theme(plot.title = element_text(size = 20, hjust = 0.5),
-        axis.text = element_text(size = 14),
-        axis.title = element_text(size = 16),
-        legend.title = element_text(size = 14),
-        legend.text = element_text(size = 12))
-
-
-
-group_size <- 100
-num_groups <- length(x_points)
-coverage <- rep(0, num_groups)
-
-for (i in 1:num_groups) {
-  start_index <- (i - 1) * group_size + 1
-  end_index <- i * group_size
-  y_values_group <- y_values_with_noise[start_index:end_index]
-  coverage[i] <- mean(y_values_group >= ci_data$lower[i] & y_values_group <= ci_data$upper[i]) * 100
-}
-
-truth2$coverage <- coverage
-
-truth2
-
-
-
-# y = 0.02(x^3 +1.2)
-y <- function(x) {
-  return(0.02 * (x^3 - 1.2))
-}
-
-x <- seq(0, 30, by = 0.1)
-y_values <- y(x)
-
-num_points <- length(x)
-num_noise <- 1
-noise <- rnorm(num_points, mean = 0, sd = 1)
-y_values_with_noise <- y_values + noise
-
-plot(x, y_values_with_noise, type = "p", xlab = "x", ylab = "y(x) + noise", main = "Simulated points for the known function", col = "blue", pch = 16)
-
-count <- length(y_values_with_noise)
-cat(count, "\n")
-
-dataset <- data.frame(x = x, y = y_values_with_noise)
-
-dfs <- c(6, 10, 15)
-mfitsss <- lapply(dfs, function(d) {
-  with(dataset, mono_fit(x, y, df = d))
-})
-
-
-new_x_points <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
-n_bootstrap <- 1000
-truth3 <- data.frame(x = new_x_points, y = NA, lower = NA, upper = NA)
-
-for (j in seq_along(new_x_points)) {
-  newx <- new_x_points[j]
-  boot_means <- rep(NA, n_bootstrap)
-  for (i in 1:n_bootstrap) {
-    boot_indices <- sample(n, replace = TRUE)  
-    boot_sample <- dataset[boot_indices, ]  
-    mfitsss <- lapply(dfs, function(d) {
-      with(boot_sample, mono_fit(x, y, df = 6))
-    })
+  coverage_list = list()
+  
+  for(i in 1:length(ci)){
     
-    new_x <- predict(mfitsss[[1]]$x_mat, newx = newx)
-    new_fit <- mfitsss[[1]]$coefficients[1] + sum(mfitsss[[1]]$coefficients[-1] * new_x)
-    boot_means[i] <- as.numeric(new_fit)
+    temp_coverage = rep(NA,ncol(ci[[i]]))
+    
+    for(k in 1:ncol(ci[[i]])){
+      
+      temp_ci = ci[[i]][,k]
+      test1 = temp_ci[1] <= true_y
+      test2 = temp_ci[2] >= true_y
+      temp_coverage[k] = all(test1,test2)
+      
+    }
+    
+    coverage_list[[i]] = temp_coverage
+    
   }
   
-  CI <- quantile(boot_means, probs = c(0.025, 0.975))
-  truth3$lower[j] <- CI[1]
-  truth3$upper[j] <- CI[2]
-  truth3$y[j] <- new_fit
+  coverage_list = do.call('rbind',coverage_list)
+  colnames(coverage_list) = str_c('df_',dfs)
+  coverage = colMeans(coverage_list) %>% t() %>% as_tibble()
+  result[[j]] = tibble(x = newx,
+                       y = true_y) %>% 
+    bind_cols(coverage)
 }
 
-truth3
-
-x_points <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
-
-y_points <- 0.02 * (x_points^3 +1.2)
-
-set.seed(1)  
-num_noise <- 100
-noise <- rnorm(length(x_points) * num_noise, mean = 0, sd = 0.1)
-y_values_with_noise <- rep(y_points, each = num_noise) + noise
-
-data <- data.frame(x = rep(x_points, each = num_noise),
-                   y_with_noise = y_values_with_noise)
-
-ci_data <- data.frame(x = truth3$x,
-                      y = truth3$y,
-                      lower = truth3$lower,
-                      upper = truth3$upper)
-
-ggplot() +
-  geom_point(data = data, aes(x = x, y = y_with_noise), color = 'blue', alpha = 0.6) +
-  geom_line(data = data.frame(x = x_points, y = y_points), 
-            aes(x = x, y = y), color = 'red', size = 1.2) +
-  geom_line(data = ci_data, aes(x = x, y = y), color = 'green', size = 1.2) +
-  geom_errorbar(data = ci_data, aes(x = x, ymin = lower, ymax = upper),
-                color = 'green', width = 0.2) +
-  labs(x = "x", y = "y", title = "y = 0.02(x+1.2) with Confidence Intervals") +
-  scale_color_manual(values = c("red", "green"),
-                     labels = c("True Function", "Confidence Intervals")) +
-  theme_minimal() +
-  theme(plot.title = element_text(size = 20, hjust = 0.5),
-        axis.text = element_text(size = 14),
-        axis.title = element_text(size = 16),
-        legend.title = element_text(size = 14),
-        legend.text = element_text(size = 12))
-
-
-
-group_size <- 100
-num_groups <- length(x_points)
-coverage <- rep(0, num_groups)
-
-for (i in 1:num_groups) {
-  start_index <- (i - 1) * group_size + 1
-  end_index <- i * group_size
-  y_values_group <- y_values_with_noise[start_index:end_index]
-  coverage[i] <- mean(y_values_group >= ci_data$lower[i] & y_values_group <= ci_data$upper[i]) * 100
-}
-
-truth3$coverage <- coverage
-truth3
-
-
-
-
-
-
-# y = 0.1 * (5 * pnorm((x - 2) / 0.3)) + 1)
-y <- function(x) {
-  return( 0.1 * (5 * pnorm((x - 2) / 0.3)) + 1)
-}
-
-x <- seq(0, 20, by = 0.05)
-y_values <- y(x)
-
-num_points <- length(x)
-num_noise <- 100
-noise <- rnorm(num_points, mean = 0, sd = 0.1)
-y_values_with_noise <- y_values + noise
-
-plot(x, y_values_with_noise, type = "p", xlab = "x", ylab = "y(x) + noise", main = "Simulated points for the known function", col = "blue", pch = 16)
-
-count <- length(y_values_with_noise)
-cat(count, "\n")
-
-dataset3 <- data.frame(x = x, y = y_values_with_noise)
-
-dfs <- c(6, 10, 15)  
-mfitssss <- lapply(dfs, function(d) {
-  with(dataset3, mono_fit(x, y, df = d))
-})
-
-ggplot() +
-  geom_point(data = dataset3, aes(x = x, y = y_values_with_noise), color = 'blue', alpha = 0.6) +
-  geom_line(data = data.frame(x = dataset3$x, y = mfitssss[[1]]$fitted), 
-            aes(x = x, y = y), color = 'red', size = 1.2) +
-  labs(x = "x", y = "y") +
-  theme_minimal() +
-  theme(plot.title = element_text(size = 20, hjust = 0.5),
-        axis.text = element_text(size = 14),
-        axis.title = element_text(size = 16),
-        legend.title = element_text(size = 14),
-        legend.text = element_text(size = 12)) +
-  annotate("text", x = max(dataset3$x), y = max(dataset3$y),
-           label = paste("df =", dfs[1]), hjust = 1, vjust = 1, color = "black", size = 5)
-
-new_x_points <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
-n_bootstrap <- 1000
-truth4 <- data.frame(x = new_x_points, y = NA, lower = NA, upper = NA)
-
-for (j in seq_along(new_x_points)) {
-  newx <- new_x_points[j]
-  boot_means <- rep(NA, n_bootstrap)
-  
-  for (i in 1:n_bootstrap) {
-    boot_indices <- sample(num_points, replace = TRUE)  
-    boot_sample <- dataset3[boot_indices, ]  
-    mfitssss <- lapply(dfs, function(d) {
-      with(boot_sample, mono_fit(x, y, df = d))
-    })
-    
-    new_x <- predict(mfitssss[[1]]$x_mat, newx = newx)
-    new_fit <- mfitssss[[1]]$coefficients[1] + sum(mfitssss[[1]]$coefficients[-1] * new_x)
-    boot_means[i] <- as.numeric(new_fit)
-  }
-  
-  CI <- quantile(boot_means, probs = c(0.025, 0.975))
-  truth4$lower[j] <- CI[1]
-  truth4$upper[j] <- CI[2]
-  truth4$y[j] <- new_fit
-}
-
-truth4
-
-x_points <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
-
-y_points <- 0.1 * (5 * pnorm((x_points - 2) / 0.3)) + 1
-
-set.seed(1)  
-num_noise <- 100
-noise <- rnorm(length(x_points) * num_noise, mean = 0, sd = 0.1)
-y_values_with_noise <- rep(y_points, each = num_noise) + noise
-
-data <- data.frame(x = rep(x_points, each = num_noise),
-                   y_with_noise = y_values_with_noise)
-
-ci_data <- data.frame(x = truth4$x,
-                      y = truth4$y,
-                      lower = truth4$lower,
-                      upper = truth4$upper)
-
-ggplot() +
-  geom_point(data = data, aes(x = x, y = y_with_noise), color = 'blue', alpha = 0.6) +
-  geom_line(data = data.frame(x = x_points, y = y_points), 
-            aes(x = x, y = y), color = 'red', size = 1.2) +
-  geom_line(data = ci_data, aes(x = x, y = y), color = 'green', size = 1.2) +
-  geom_errorbar(data = ci_data, aes(x = x, ymin = lower, ymax = upper),
-                color = 'green', width = 0.2) +
-  labs(x = "x", y = "y", title = "y = 0.1(5Φ(x − 2)/0.3) + 1) with Confidence Intervals") +
-  scale_color_manual(values = c("red", "green"),
-                     labels = c("True Function", "Confidence Intervals")) +
-  theme_minimal() +
-  theme(plot.title = element_text(size = 20, hjust = 0.5),
-        axis.text = element_text(size = 14),
-        axis.title = element_text(size = 16),
-        legend.title = element_text(size = 14),
-        legend.text = element_text(size = 12))
-
-group_size <- 100
-num_groups <- length(x_points)
-coverage <- rep(0, num_groups)
-
-for (i in 1:num_groups) {
-  start_index <- (i - 1) * group_size + 1
-  end_index <- i * group_size
-  y_values_group <- y_values_with_noise[start_index:end_index]
-  coverage[i] <- mean(y_values_group >= ci_data$lower[i] & y_values_group <= ci_data$upper[i]) * 100
-}
-
-truth4$coverage <- coverage
-truth4
-
-# We can see that in some situations the 1000 times bootstrap CI had poor performance in certain points -- however, if you increase the bootstrap sampling from 1000 to 2000
-# the behavior will be much better
-
-# It seems bootstrap CI have a poor performance in function 3 -- still finding out the reason for that
+result = do.call('rbind',result)
+result
