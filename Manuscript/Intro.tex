@@ -50,11 +50,24 @@
 
 \bigskip
 \begin{abstract}
-The bootstrap method is an important resampling technique used to estimate statistics on a population by repeatedly sampling the data. It is also an effective approach for estimating the measure of dispersion in a dataset, especially in regression analysis. However, in some cases, regression models need to be constrained with known characteristics such as monotonicity or curvature, for example, in growth curves, where the coefficients are forced to be non-negative. In such situations, spline regression is used for modeling. It is not always certain whether the bootstrap method can be directly applied to estimate the dispersion under these shape-restricted scenarios, especially for pointwise confidence intervals. In this article, we will demonstrate the usage of the bootstrap method in shape-restricted regression and proof the effectiveness of bootstrap for constructing pointwise confidence intervals in shape-restricted regression empirically.
+The bootstrap method is an important resampling technique used to estimate 
+statistics on a population by repeatedly sampling the data. It is also an 
+effective approach for estimating the measure of dispersion in a dataset, 
+especially in regression analysis. However, in some cases, regression models 
+need to be constrained with known characteristics such as monotonicity or 
+curvature, for example, in growth curves, where the coefficients are forced
+to be non-negative. In such situations, spline regression is used for modeling.
+It is not always certain whether the bootstrap method can be directly applied 
+to estimate the dispersion under these shape-restricted scenarios, especially 
+for pointwise confidence intervals. In this article, we will demonstrate the 
+usage of the bootstrap method in shape-restricted regression and proof the 
+effectiveness of bootstrap for constructing pointwise confidence intervals 
+in shape-restricted regression empirically.
 \end{abstract}
 
 \noindent%
-{\it Keywords:}  bootstrap; shape-restricted regression; pointwise confidence interval; growth curve; splines regression
+{\it Keywords:}  bootstrap; shape-restricted regression; pointwise confidence
+interval; growth curve; splines regression
 \vfill
 
 \newpage
@@ -62,57 +75,44 @@ The bootstrap method is an important resampling technique used to estimate stati
 \section{Introduction}
 \label{sec:intro}
 
-Bootstrap is a powerful and important resampling method for estimating population parameters or assessing the accuracy of a statistical procedure by repeatedly sampling the data with replacement. Its effectiveness have been widely recognized in regression analysis. By bootstrap, we can estimate the standard errors of the regression coefficients. Even for unknown underlying population distributions, bootstrap method can resample the data with replacement and computes the regression coefficients for each resampled dataset. By repeating this process many times, it provides an empirical estimate of the standard errors, which can be valuable when the assumptions of traditional standard error estimation techniques are violated. It can also be used to construct confidence intervals for regression coefficients. By resampling the dataset, bootstrap can determining the percentile intervals of these coefficients, we can obtain approximate confidence intervals for the regression parameters. Bootstrap can also construct the approximate confidence interval for certain time points f(t)s in the function by simulating f'(t) certain times in certain time points. However, when dealing with shape-restricted regressions, where the coefficients are forced to adhere to specific constraints such as monotonicity or curvature, the effectiveness of bootstrap is not proved to be guaranteed. In this paper, we will demonstrate the usage of the bootstrap method in shape-restricted regression and proof the effectiveness of bootstrap for constructing pointwise confidence intervals in shape-restricted regression empirically.
+Bootstrap is a powerful and important resampling method for estimating 
+population parameters or assessing the accuracy of a statistical procedure
+by repeatedly sampling the data with replacement. Its effectiveness have 
+been widely recognized in regression analysis. By bootstrap, we can 
+estimate the standard errors of the regression coefficients. Even for
+unknown underlying population distributions, bootstrap method can resample
+the data with replacement and computes the regression coefficients for 
+each resampled dataset. By repeating this process many times, it provides
+an empirical estimate of the standard errors, which can be valuable when
+the assumptions of traditional standard error estimation techniques are 
+violated. It can also be used to construct confidence intervals for 
+regression coefficients. By resampling the dataset, bootstrap can 
+determining the percentile intervals of these coefficients, we can obtain
+approximate confidence intervals for the regression parameters. Bootstrap
+can also construct the approximate confidence interval for certain time
+points f(t)s in the function by simulating f'(t) certain times in certain
+time points. However, when dealing with shape-restricted regressions, where
+the coefficients are forced to adhere to specific constraints such as monotonicity
+or curvature, the effectiveness of bootstrap is not proved to be guaranteed.
+In this paper, we will demonstrate the usage of the bootstrap method in 
+shape-restricted regression and proof the effectiveness of bootstrap for 
+constructing pointwise confidence intervals in shape-restricted regression empirically.
 
-The rest of the paper is organized as the follows. Section~\ref{Bootstrap Method for Constructing Confidence Intervals} gives a review of bootstrap method for constructing confidence intervals. Section~\ref{Shape Restricted Example} gives out a shape-restricted regression example and the usage of bootstrap to build the pointwise confidence intervals for certain time points. Section~\ref{Simulation Study} shows a simulation study to assess the performance of the methods.
-explores the case where a combination of the first two scenarios occurs. An  
-adjusted bootstrap procedure is proposed as a working solution in this case.  
-Section~\ref{Conclusion} concludes with a discussion.
-
-
+The rest of the paper is organized as the follows. Section 
+~\ref{Bootstrap Method for Constructing Confidence Intervals} gives a review of 
+bootstrap method for constructing confidence intervals. 
+Section~\ref{Shape Restricted Example} gives out a shape-restricted regression example
+and the usage of bootstrap to build the pointwise confidence intervals for certain time
+points. Section~\ref{Simulation Study} shows a simulation study to assess the 
+performance of the methods.
 
 
 \section{Bootstrap Method for Constructing Confidence Intervals}
 \label{Bootstrap Method for Constructing Confidence Intervals}
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 \section{Shape Restricted Example}
 \label{Shape Restricted Example}
-
-
-
-
-
-
-
-
-
-
 
 
 \section{Simulation Study}
