@@ -8,6 +8,18 @@ This is the RMarkdown version of the meeting note, if you want to see it in .txt
 
 ## Research Note:
 
+### Report for meeting 7
+
+7/31
+
+#### Progress:
+
+1. Write down the first manuscript
+
+2. Did the simulation study
+
+#### Question:
+
 ### Report for meeting 6
 
 7/17
