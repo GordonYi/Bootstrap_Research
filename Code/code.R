@@ -182,7 +182,8 @@ annotate("text", x = max(age.income$age), y = max(age.income$log.income),
 y <- function(x) {
   return(0.25*(x-0.9))
 }
-x <- seq(0, 30, length.out = 1000)
+set.seed(77)
+x <- runif(1000, min = 0, max = 30)
 y_values <- y(x)
 
 noise <- rnorm(length(x), mean = 0, sd = 1)  
