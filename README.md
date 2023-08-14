@@ -11,6 +11,16 @@ in .txt file, please see MeetingNote.txt.
 
 ## Research Note:
 
+### Report for meeting 8
+
+8/14
+
+#### Progress:
+
+1. Correct the code for simulation study
+
+2. Write down the first manuscript
+
 ### Report for meeting 7
 
 7/31
