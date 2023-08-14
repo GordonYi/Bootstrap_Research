@@ -9,6 +9,16 @@ This file is present in .txt format, if you want to read this in markdown format
 Wish you have a nice day!
 
 ——————————————————————————————————————————————
+Report for meeting 8
+8/14
+
+Progress:
+
+1. Correct the code for simulation study
+
+2. Write down first manuscript
+
+——————————————————————————————————————————————
 Report for meeting 7
 
 7/31
